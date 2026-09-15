@@ -7,7 +7,8 @@ import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 
-const sql = postgres(process.env.POSTGRE_URL!, { ssl: 'require' });
+console.log('POSTGRES_URL is set:', !!process.env.POSTGRES_URL);
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
     id: z.string(),
@@ -28,7 +29,9 @@ export type State = {
     message?: string | null;
 }
 
-export async function createInvoice(prevState: State, formData: FormData){
+export async function createInvoice(prevState: State, formData: FormData): Promise<any>{
+    console.log('POSTGRES_URL is set:', !!process.env.POSTGRES_URL);
+    console.log(process.env.POSTGRES_URL);
     const validatedFields = CreateInvoice.safeParse({
         customerId: formData.get('customerId'),
         amount: formData.get('amount'),
@@ -43,6 +46,7 @@ export async function createInvoice(prevState: State, formData: FormData){
     }
 
     const { customerId, amount, status } = validatedFields.data;
+    console.log(customerId, amount, status);
     const amountInCents = amount * 100;
     const date = new Date().toISOString().split('T')[0];
 
@@ -64,7 +68,7 @@ export async function createInvoice(prevState: State, formData: FormData){
 
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
-export async function updateInvoice(id: string, prevState: State,  formData: FormData){
+export async function updateInvoice(id: string, prevState: State,  formData: FormData): Promise<any> {
     const validatedFields = UpdateInvoice.safeParse({
         customerId: formData.get('customerId'),
         amount: formData.get('amount'),
